@@ -2,7 +2,7 @@ from time import time, sleep
 from sys import exit as sys_exit
 from hashlib import sha256
 from pathlib import Path
-from shutil import copy2
+from shutil import copyfile as copy
 import argparse
 
 
@@ -30,23 +30,23 @@ def add_log_line(line):
 
 
 def mkdir_log(path):
-    add_log_line(f"CREATED FOLDER: {path}")
+    add_log_line(f"CREATING FOLDER: {path}")
     path.mkdir()
 
 def rmdir_log(path):
-    add_log_line(f"DELETED FOLDER: {path}")
+    add_log_line(f"DELETING FOLDER: {path}")
     path.rmdir()
 
 def unlink_log(path):
-    add_log_line(f"DELETED FILE: {path}")
+    add_log_line(f"DELETING FILE: {path}")
     path.unlink()
 
 def copy_log(src_path, dst_path, is_new):
     if is_new:
-        add_log_line(f"CREATED FILE: {dst_path}")
+        add_log_line(f"CREATING FILE: {dst_path}")
     else:
-        add_log_line(f"UPDATED FILE: {dst_path}")
-    copy2(src_path, dst_path)
+        add_log_line(f"UPDATING FILE: {dst_path}")
+    copy(src_path, dst_path)
 
 
 class Folder:
@@ -275,7 +275,7 @@ if __name__=="__main__":
                 sleep(period + iter_start - time())
             else:
                 sleep(args.period)
-        except OSError:
+        except OSError as e:
             # Check if the source folder exists
             if not source_path.is_dir():
                 try:
@@ -284,6 +284,7 @@ if __name__=="__main__":
                     print("ERROR: The source folder doesn't seem to exist, make "
                           "sure the path is correct")
                     sys_exit()
+            add_log_line(f"ERROR: {repr(e)}")
             if time()-iter_start <= period:
                 sleep(period + iter_start - time())
             else:
